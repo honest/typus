@@ -36,6 +36,7 @@ module Typus
     autoload :None, "typus/authentication/none"
     autoload :HttpBasic, "typus/authentication/http_basic"
     autoload :Session, "typus/authentication/session"
+    autoload :Devise, "typus/authentication/devise"
   end
 
   mattr_accessor :autocomplete

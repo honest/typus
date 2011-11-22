@@ -5,12 +5,15 @@ module Typus
         module InstanceMethods
 
           def to_label
-            full_name = [first_name, last_name].delete_if { |s| s.blank? }
-            full_name.any? ? full_name.join(" ") : email
+            email
           end
 
           def resources
             Typus::Configuration.roles[role.to_s].compact
+          end
+
+          def models
+            Typus.models.delete_if { |m| cannot?('read', m) }
           end
 
           def applications
@@ -44,6 +47,10 @@ module Typus
             !is_root?
           end
 
+          def active?
+            status && Typus::Configuration.roles.has_key?(role)
+          end
+
           def locale
             (preferences && preferences[:locale]) ? preferences[:locale] : ::I18n.default_locale
           end
@@ -54,8 +61,15 @@ module Typus
           end
 
           def owns?(resource)
-            id == resource.send(Typus.user_fk)
+            id == resource.send(Typus.user_foreign_key)
           end
+
+          def set_token
+            token = "#{SecureRandom.hex(6)}-#{SecureRandom.hex(6)}"
+            token.encode!('UTF-8') if token.respond_to?(:encode)
+            self.token = token
+          end
+          protected :set_token
 
         end
       end
